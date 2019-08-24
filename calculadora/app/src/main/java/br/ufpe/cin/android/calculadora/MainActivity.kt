@@ -1,14 +1,89 @@
 package br.ufpe.cin.android.calculadora
 
+import android.app.AlertDialog
+import android.app.Dialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_main.view.*
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //guarda referencia para a entrada e para a tela
+        var editText = findViewById<EditText>(R.id.text_calc)
+        var textView = findViewById<TextView>(R.id.text_info)
+
+        //recebe o q tava guardado qdo mudou configuração
+        var savedStateDigitado = savedInstanceState?.getString("digitado");
+        var savedStateResultado = savedInstanceState?.getString("resultado");
+
+        editText.setText(savedStateDigitado)
+        textView.setText(savedStateResultado)
+
+        print("listening..")
+        setButtonListeners(editText,textView)
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("digitado",findViewById<EditText>(R.id.text_calc).text.toString())
+        outState.putString("resultado",findViewById<TextView>(R.id.text_info).text.toString())
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun setButtonListeners(editText:EditText,textView:TextView){
+
+        //cria os listeners
+        //numeros
+        findViewById<Button>(R.id.btn_0).setOnClickListener { editText.append("0") }
+        findViewById<Button>(R.id.btn_1).setOnClickListener { editText.append("1") }
+        findViewById<Button>(R.id.btn_2).setOnClickListener { editText.append("2") }
+        findViewById<Button>(R.id.btn_3).setOnClickListener { editText.append("3") }
+        findViewById<Button>(R.id.btn_4).setOnClickListener { editText.append("4") }
+        findViewById<Button>(R.id.btn_5).setOnClickListener { editText.append("5") }
+        findViewById<Button>(R.id.btn_6).setOnClickListener { editText.append("6") }
+        findViewById<Button>(R.id.btn_7).setOnClickListener { editText.append("7") }
+        findViewById<Button>(R.id.btn_8).setOnClickListener { editText.append("8") }
+        findViewById<Button>(R.id.btn_9).setOnClickListener { editText.append("9") }
+
+        //funcoes matematicas listeners
+        findViewById<Button>(R.id.btn_Subtract).setOnClickListener { editText.setText(editText.text.toString()+"-")}
+        findViewById<Button>(R.id.btn_Add).setOnClickListener { editText.setText(editText.text.toString()+"+") }
+        findViewById<Button>(R.id.btn_Divide).setOnClickListener { editText.setText(editText.text.toString()+"/") }
+        findViewById<Button>(R.id.btn_Multiply).setOnClickListener { editText.setText(editText.text.toString()+"*") }
+        findViewById<Button>(R.id.btn_Power).setOnClickListener { editText.setText(editText.text.toString()+"^") }
+
+        //utilities listeners
+        findViewById<Button>(R.id.btn_LParen).setOnClickListener { editText.setText(editText.text.toString()+"(") }
+        findViewById<Button>(R.id.btn_RParen).setOnClickListener { editText.setText(editText.text.toString()+")") }
+        findViewById<Button>(R.id.btn_Dot).setOnClickListener { editText.append(".") }
+
+        //clear button listener
+        findViewById<Button>(R.id.btn_Clear).setOnClickListener{ editText.setText("")}
+
+        //equal listener
+
+        findViewById<Button>(R.id.btn_Equal).setOnClickListener{
+            try {
+                //tenta ver se o eval não dá erro
+                val resultado = eval(editText.text.toString())
+                textView.setText(editText.text.toString()+" = "+resultado);
+                editText.setText("");
+
+            }catch (err: RuntimeException){
+                //se der erro, dispara mensagem
+                Toast.makeText(applicationContext,"Error! "+err.localizedMessage, Toast.LENGTH_LONG).show()
+            }
+        }
+        }
 
 
     //Como usar a função:
